@@ -19,7 +19,7 @@ def create_auth_token_response(user):
     token, _ = Token.objects.get_or_create(user=user)
     return {
         "token": token.key,
-        "fullname": user.userprofile.fullname,
+        "username": user.username,
         "email": user.email,
         "user_id": user.id,
     }

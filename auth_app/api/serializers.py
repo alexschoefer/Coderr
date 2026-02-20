@@ -12,18 +12,19 @@ class RegistrationSerializer(serializers.ModelSerializer):
     and creation of the User and related UserProfile.
     """
     repeated_password = serializers.CharField(write_only=True)
-    fullname = serializers.CharField(write_only=True)
+    username = serializers.CharField(write_only=True)
 
     class Meta:
-        model = AbstractUser
+        model = CustomUser
         fields = [
             'email', 
-            'fullname', 
+            'username', 
             'password', 
             'repeated_password',
             'type']
         extra_kwargs = {
-            "password": {"write_only": True}
+            'password': {"write_only": True},
+            'type': {'required': True}
         }
     
     def validate(self, data):
@@ -46,7 +47,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         :return: Email address
         :raises ValidationError: If email already exists
         """
-        if AbstractUser.objects.filter(email=value).exists():
+        if CustomUser.objects.filter(email=value).exists():
             raise serializers.ValidationError('The email address already belongs to an account.')
         return value
 
@@ -58,13 +59,13 @@ class RegistrationSerializer(serializers.ModelSerializer):
         :return: Created User instance
         """
         validated_data.pop('repeated_password')
-        fullname = validated_data.pop('fullname')
+        username = validated_data.pop('username')
         email = validated_data['email']
 
-        user = AbstractUser.objects.create_user(
-            username=fullname,
+        user = CustomUser.objects.create_user(
+            username=username,
             email=email,
-            password=validated_data['password']
+            password=validated_data['password'],
+            type=validated_data['type'],
         )
-        CustomUser.objects.create(user=user, fullname=fullname)
         return user
