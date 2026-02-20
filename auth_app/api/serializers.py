@@ -69,3 +69,51 @@ class RegistrationSerializer(serializers.ModelSerializer):
             type=validated_data['type'],
         )
         return user
+    
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        """
+        Validate user credentials.
+
+        :param data: Incoming login data
+        :return: Validated data with user instance
+        :raises ValidationError: If credentials are invalid
+        """
+
+        username = data.get('username')
+        password = data.get('password')
+
+        user = self._get_user_by_username(username)
+        self._check_password(user, password)
+
+        data['user'] = user
+        return data
+    
+    def _get_user_by_username(self, username):
+        """
+        Retrieve a user by email address.
+
+        :param email: Email address
+        :return: User instance
+        :raises ValidationError: If user does not exist
+        """
+        try:
+            return CustomUser.objects.get(username=username)
+        except CustomUser.DoesNotExist:
+            raise serializers.ValidationError({
+                'username': 'No account with this username.'
+            })
+
+    def _check_password(self, user, password):
+        """
+        Check if the provided password is correct. 
+        If password is invalid, a ValidationError is given
+        """
+        if not authenticate(username=user.username, password=password):
+            raise serializers.ValidationError({
+                'password': 'Invalid password. Please check.'
+            })

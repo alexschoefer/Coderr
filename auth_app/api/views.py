@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 
-from .serializers import RegistrationSerializer
+from .serializers import RegistrationSerializer, LoginSerializer
 
 def create_auth_token_response(user):
     """
@@ -61,4 +61,32 @@ class RegistrationView(generics.CreateAPIView):
         return Response(
             response_data,
             status=status.HTTP_201_CREATED,
+        )
+    
+
+class UserLoginView(ObtainAuthToken):
+    """
+    API view for user authentication using email and password.
+
+    Returns an authentication token and basic user information
+    upon successful login.
+    """
+
+    permission_classes = [AllowAny]
+    serializer_class = LoginSerializer
+
+    def post(self, request):
+        """
+        Authenticate the user and return an auth token.
+        """
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        user = serializer.validated_data["user"]
+
+        response_data = create_auth_token_response(user)
+
+        return Response(
+            response_data,
+            status=status.HTTP_200_OK,
         )
