@@ -20,9 +20,9 @@ class CustomerProfile(models.Model):
         Returns:
             str: The full name of the customer.
         """
-        return f"{self.username}"
+        return f"{self.user.username}"
 
-class BusinessProfil(models.Model):
+class BusinessProfile(models.Model):
     """
     Profile for the business user with business specific additional fields
     """
@@ -44,4 +44,4 @@ class BusinessProfil(models.Model):
         Returns:
             str: The full name of the business user.
         """
-        return f"{self.username}"
+        return f"{self.user.username}"
