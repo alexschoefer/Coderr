@@ -11,38 +11,6 @@ from auth_app.models import CustomUser
 from profil_app.models import BusinessProfile, CustomerProfile
 from profil_app.api.serializers import BusinessProfileSerializer, CustomerProfileSerializer
 
-# class UserProfileView(generics.RetrieveUpdateAPIView):
-#     """
-#     API view to retrieve or update a user profile (customer or business) by UserID.
-#     """
-#     permission_classes = [IsAuthenticated]
-#     authentication_classes = [TokenAuthentication]
-
-#     def get_object(self):
-#         """
-#         Retrieve the profile (CustomerProfile or BusinessProfile) based on the UserID.
-#         """
-#         user_id = self.kwargs.get('pk')
-#         try:
-#             if CustomerProfile.objects.filter(user_id=user_id).exists():
-#                 return CustomerProfile.objects.get(user_id=user_id)
-#             elif BusinessProfile.objects.filter(user_id=user_id).exists():
-#                 return BusinessProfile.objects.get(user_id=user_id)
-#         except (CustomerProfile.DoesNotExist, BusinessProfile.DoesNotExist):
-#             raise Http404("Profile not found for the given UserID.")
-#         raise Http404("Profile not found for the given UserID.")
-
-#     def get_serializer_class(self):
-#         """
-#         Dynamically return the serializer class based on the profile type.
-#         """
-#         profile = self.get_object()
-#         if isinstance(profile, CustomerProfile):
-#             return CustomerProfileSerializer
-#         elif isinstance(profile, BusinessProfile):
-#             return BusinessProfileSerializer
-#         raise ValueError("Invalid profile type.")
-
 
 class BusinessProfileDetailView(generics.RetrieveAPIView):
     """
@@ -117,3 +85,23 @@ class UserProfileView(APIView):
         elif isinstance(profile, BusinessProfile):
             return BusinessProfileSerializer(profile, data=data, partial=partial)
         raise ValueError("Invalid profile type.")
+    
+
+class BusinessProfileListView(generics.ListAPIView):
+    """
+    List all business profiles.
+    """
+    queryset = BusinessProfile.objects.all()
+    serializer_class = BusinessProfileSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
+
+class CustomerProfileListView(generics.ListAPIView):
+    """
+    List all customer profiles.
+    """
+    queryset = CustomerProfile.objects.all()
+    serializer_class = CustomerProfileSerializer
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
