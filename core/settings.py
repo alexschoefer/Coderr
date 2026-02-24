@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'auth_app',
     'profil_app',
-    'offers_app',
+    'offer_app',  # Der Name muss mit dem Ordnernamen übereinstimmen
     'rest_framework',
     'rest_framework.authtoken',
 ]
