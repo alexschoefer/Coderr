@@ -53,3 +53,13 @@ class OfferDetails(models.Model):
         ('premium', 'Premium')],
         )
 
+class UserDetails(models.Model):
+
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='user_details', null=True, blank=True)
+
+    first_name = models.CharField(max_length=255, null=True, blank=True)
+    last_name = models.CharField(max_length=255, null=True, blank=True)
+    username = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.first_name} {self.last_name}"
