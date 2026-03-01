@@ -7,5 +7,5 @@ class IsBusinessUser(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        # Check if the user is authenticated and is a business user
-        return request.user and request.user.is_authenticated and request.user.is_business
+        if request.method == 'POST':
+            return request.user and request.user.is_authenticated and request.user.type == 'business'

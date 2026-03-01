@@ -8,26 +8,40 @@ class OfferDetailsSerializer(serializers.ModelSerializer):
         fields = ['id', 'url']
         read_only_fields = ['id', 'url']
 
+class OfferDetailsCreateSerializer(serializers.ModelSerializer):
+
+    features = serializers.ListField(child=serializers.CharField(), required=False)
+    
+    class Meta:
+        model = OfferDetails
+        fields = ['id', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
+        read_only_fields = ['id']
+        extra_kwargs = {
+            'offer_type': {'required': True}
+        }
+
 class OfferCreateSerializer(serializers.ModelSerializer):
+
+    details = OfferDetailsCreateSerializer(source='offer_details', many=True)
     
     class Meta:
         model = Offer
-        fields = ['id', 'image','title', 'description', 'min_price', 'min_delivery_time']
+        fields = ['id', 'title', 'description', 'details']
         read_only_fields = ['id']
 
-    """
-    Validate that the offer contains at least three details.
-    """
-
     def validate_details(self, value):
-
+        """
+        Validate that the offer contains at least three details.
+        """
         if len(value) > 3:
             raise serializers.ValidationError("An offer must contain at least three details.")
         return value
     
     def create(self, validated_data):
-        
-        details_data = validated_data.pop('details', [])
+        """
+        Create an offer along with its details. The details are expected to be provided in the 'details' field of the input data.
+        """
+        details_data = validated_data.pop('offer_details', [])  # Match the source name
 
         offer = Offer.objects.create(**validated_data)
 
@@ -38,14 +52,3 @@ class OfferCreateSerializer(serializers.ModelSerializer):
             offer_detail.save()
         return offer
 
-class OfferDetailsCreateSerializer(serializers.ModelSerializer):
-
-    feature = serializers.ListField(child=serializers.CharField(), required=False)
-    
-    class Meta:
-        model = OfferDetails
-        fields = ['id', 'offer', 'title', 'revisions', 'delivery_time_in_days', 'price', 'features', 'offer_type']
-        read_only_fields = ['id']
-        extra_kwargs = {
-            'offer': {'required': True}
-        }
