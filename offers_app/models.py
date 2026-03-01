@@ -1,5 +1,6 @@
 from django.db import models
 from auth_app.models import CustomUser
+from upload_app.models import FileUpload
 
 # Create your models here.
 
@@ -14,6 +15,8 @@ class Offer(models.Model):
     )
 
     title = models.CharField(max_length=255, null=True, blank=True)
+
+    image = models.ForeignKey(FileUpload, on_delete=models.SET_NULL, null=True, blank=True, related_name="offer_image")
 
     description = models.TextField(null=True, blank=True)
 
