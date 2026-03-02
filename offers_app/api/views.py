@@ -6,6 +6,15 @@ from rest_framework.exceptions import ValidationError
 from .serializers import OfferCreateSerializer, OfferDetailsCreateSerializer, OfferDetailsSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.pagination import PageNumberPagination
+
+class PageSizeNumberPagination(PageNumberPagination):
+    """
+    Pagination class that allows clients to set the page size using a query parameter. Page size is 5 by default.
+    """
+    page_size = 5
+    page_size_query_param = 'page_size'
+    
 
 class OfferCreateView(generics.CreateAPIView):
 
