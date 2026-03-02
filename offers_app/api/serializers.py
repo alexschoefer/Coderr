@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from offers_app.models import Offer, OfferDetails
 
+
 class OfferDetailsSerializer(serializers.ModelSerializer):
     
     class Meta:
@@ -51,4 +52,48 @@ class OfferCreateSerializer(serializers.ModelSerializer):
             offer_detail.features = features
             offer_detail.save()
         return offer
+    
 
+class UserDetailsSerializer(serializers.ModelSerializer):
+
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    username = serializers.CharField()
+
+
+class OfferListSerializer(serializers.ModelSerializer):
+
+    details = OfferDetailsSerializer(
+        source="offer_details",
+        many=True,
+        read_only=True
+    )
+
+    user_details = UserDetailsSerializer(
+        source="user.user_details",
+        read_only=True
+    )
+
+    min_price = serializers.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        read_only=True
+    )
+
+    min_delivery_time = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Offer
+        fields = [
+            "id",
+            "user",
+            "title",
+            "image",
+            "description",
+            "created_at",
+            "updated_at",
+            "details",
+            "min_price",
+            "min_delivery_time",
+            "user_details",
+        ]

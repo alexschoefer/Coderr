@@ -3,10 +3,16 @@ from rest_framework.permissions import IsAuthenticated
 from .permissions import IsBusinessUser
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from .serializers import OfferCreateSerializer, OfferDetailsCreateSerializer, OfferDetailsSerializer
+from .serializers import OfferCreateSerializer, OfferDetailsCreateSerializer, OfferDetailsSerializer, OfferListSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.pagination import PageNumberPagination
+from django.db.models import Min
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import OrderingFilter, SearchFilter
+from offers_app.models import Offer
+
+
 
 class PageSizeNumberPagination(PageNumberPagination):
     """
@@ -16,39 +22,47 @@ class PageSizeNumberPagination(PageNumberPagination):
     page_size_query_param = 'page_size'
     
 
-class OfferCreateView(generics.CreateAPIView):
+class OffersListView(generics.ListCreateAPIView):
 
     permission_classes = [IsAuthenticated, IsBusinessUser]
-    serializer_class = OfferCreateSerializer
+    pagination_class = PageSizeNumberPagination
+
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    ordering_fields = ["updated_at", "min_price"]
+    search_fields = ["title", "description"]
 
     def get_serializer_class(self):
-        if self.request.method == 'POST':
+        if self.request.method == "POST":
             return OfferCreateSerializer
-        return OfferDetailsSerializer
+        return OfferListSerializer
 
-    # def create(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-
-    #     offer = serializer.save(user=request.user)
-
-    #     # Serialize offer details for the response
-    #     details_serializer = OfferDetailsCreateSerializer(
-    #         offer.offer_details_set.all(), many=True  # Corrected the attribute name
-    #     )
-
-    #     response_data = {
-    #         "id": offer.id,
-    #         "title": offer.title,
-    #         "description": offer.description,
-    #         "details": details_serializer.data,  # Include serialized details
-    #     }
-
-    #     return Response(response_data, status=status.HTTP_201_CREATED)
-
-class OfferListView(generics.ListAPIView):
-
-    permission_classes = [IsAuthenticated]
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
     def get_queryset(self):
-        return self.request.user.user_offers.all()
+
+        queryset = Offer.objects.annotate(
+            min_price=Min("offer_details__price"),
+            min_delivery_time=Min("offer_details__delivery_time_in_days"),
+        ).select_related(
+            "user",
+            "user__user_details"
+        ).prefetch_related(
+            "offer_details"
+        )
+
+        creator_id = self.request.query_params.get("creator_id")
+        min_price = self.request.query_params.get("min_price")
+        max_delivery_time = self.request.query_params.get("max_delivery_time")
+
+        if creator_id:
+            queryset = queryset.filter(user_id=creator_id)
+
+        if min_price:
+            queryset = queryset.filter(min_price__gte=min_price)
+
+        if max_delivery_time:
+            queryset = queryset.filter(min_delivery_time__lte=max_delivery_time)
+
+        return queryset
+

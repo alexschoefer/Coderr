@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'profil_app',
     'offers_app',
     'upload_app',
+    'django_filters',
     'rest_framework',
     'rest_framework.authtoken',
 ]
@@ -132,7 +133,8 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
-    ]
+    ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
 }
 
 # Custom User Model
