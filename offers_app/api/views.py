@@ -7,7 +7,7 @@ from .serializers import OfferCreateSerializer, OfferDetailsCreateSerializer, Of
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.pagination import PageNumberPagination
-from django.db.models import Min
+from django.db.models import Min, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
 from offers_app.models import Offer
@@ -18,7 +18,7 @@ class PageSizeNumberPagination(PageNumberPagination):
     """
     Pagination class that allows clients to set the page size using a query parameter. Page size is 5 by default.
     """
-    page_size = 5
+    page_size = 10
     page_size_query_param = 'page_size'
     
 
@@ -28,7 +28,7 @@ class OffersListView(generics.ListCreateAPIView):
     pagination_class = PageSizeNumberPagination
 
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
-    ordering_fields = ["updated_at", "min_price"]
+    ordering_fields = ["updated_at", "annotated_min_price"]
     search_fields = ["title", "description"]
 
     def get_serializer_class(self):
@@ -40,29 +40,65 @@ class OffersListView(generics.ListCreateAPIView):
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
+        queryset = self._get_base_queryset()
+        queryset = self._apply_filters(queryset)
+        queryset = self._apply_search(queryset)
+        return queryset
 
-        queryset = Offer.objects.annotate(
-            min_price=Min("offer_details__price"),
-            min_delivery_time=Min("offer_details__delivery_time_in_days"),
-        ).select_related(
-            "user",
-            "user__user_details"
-        ).prefetch_related(
-            "offer_details"
+
+    def _get_base_queryset(self):
+        """
+        Base queryset with annotations and query optimizations.
+        """
+        return (
+            Offer.objects
+            .annotate(
+                annotated_min_price=Min("offer_details__price"),
+                annotated_min_delivery_time=Min("offer_details__delivery_time_in_days"),
+            )
+            .select_related("user", "user__user_details")
+            .prefetch_related("offer_details")
         )
 
-        creator_id = self.request.query_params.get("creator_id")
-        min_price = self.request.query_params.get("min_price")
-        max_delivery_time = self.request.query_params.get("max_delivery_time")
 
+    def _apply_filters(self, queryset):
+        """
+        Apply query parameter filters.
+        """
+        creator_id = self.request.query_params.get("creator_id")
         if creator_id:
             queryset = queryset.filter(user_id=creator_id)
 
+        min_price = self.request.query_params.get("min_price")
         if min_price:
-            queryset = queryset.filter(min_price__gte=min_price)
+            try:
+                min_price = float(min_price)
+            except (ValueError, TypeError):
+                raise ValidationError({"min_price": "Must be a numeric value."})
+            queryset = queryset.filter(annotated_min_price__gte=min_price)
 
+        max_delivery_time = self.request.query_params.get("max_delivery_time")
         if max_delivery_time:
-            queryset = queryset.filter(min_delivery_time__lte=max_delivery_time)
+            try:
+                max_delivery_time = int(max_delivery_time)
+            except (ValueError, TypeError):
+                raise ValidationError(
+                    {"max_delivery_time": "Must be an integer value."}
+                )
+            queryset = queryset.filter(annotated_min_delivery_time__lte=max_delivery_time)
 
+        return queryset
+
+
+    def _apply_search(self, queryset):
+        """
+        Apply search filter on title and description.
+        """
+        search = self.request.query_params.get("search")
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(description__icontains=search)
+            )
         return queryset
 
