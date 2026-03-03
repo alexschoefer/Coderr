@@ -24,7 +24,7 @@ class PageSizeNumberPagination(PageNumberPagination):
 
 class OffersListView(generics.ListCreateAPIView):
 
-    permission_classes = [IsAuthenticated, IsBusinessUser]
+    permission_classes = [IsAuthenticated]
     pagination_class = PageSizeNumberPagination
 
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
