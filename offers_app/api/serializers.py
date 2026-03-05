@@ -124,3 +124,42 @@ class OfferListSerializer(serializers.ModelSerializer):
         if obj.image and request:
             return request.build_absolute_uri(obj.image.url)
         return None
+
+class SingleOfferDetailSerializer(serializers.ModelSerializer):
+
+    """Serializer for retrieving a single offer detail."""
+
+    details = OfferDetailsSerializer(source='offer_details', many=True, read_only=True)
+    image = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Offer
+        fields = [
+            'id',
+            'user',
+            'title',
+            'image',
+            'description',
+            'created_at',
+            'updated_at',
+            'details',
+            'min_price',
+            'min_delivery_time'
+        ]
+        read_only_fields = [
+            'id',
+            'created_at',
+            'updated_at',
+            'min_price',
+            'min_delivery_time',
+            'details'
+        ]
+    
+    def get_image(self, obj):
+        """
+        Return the full URL of the image if it exists, otherwise return None.
+        """
+        request = self.context.get('request')
+        if obj.image and request:
+            return request.build_absolute_uri(obj.image.url)
+        return None
