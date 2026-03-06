@@ -163,3 +163,55 @@ class SingleOfferDetailSerializer(serializers.ModelSerializer):
         if obj.image and request:
             return request.build_absolute_uri(obj.image.url)
         return None
+    
+class SingleUpdateOfferSerializer(serializers.ModelSerializer):
+
+    """Serializer for updating a single offer."""
+
+    details = OfferDetailsCreateSerializer(source='offer_details', many=True)
+    image = serializers.FileField(required=False, allow_null=True)
+
+    class Meta:
+        model = Offer
+        fields = [
+            'id',
+            'title',
+            'image', 
+            'description',
+            'details',
+        ]
+        read_only_fields = [
+            'id'
+        ]
+
+    
+    def update(self, instance, validated_data):
+        details_data = validated_data.pop('offer_details', [])
+        uploaded_image = validated_data.pop('image', None)
+
+        if uploaded_image:
+            file_upload = FileUpload.objects.create(file=uploaded_image)
+            instance.image = file_upload
+
+        instance.title = validated_data.get('title', instance.title)
+        instance.description = validated_data.get('description', instance.description)
+        instance.save()
+
+        for detail_data in details_data:
+            detail_id = detail_data.get('id')
+            features = detail_data.pop('features', [])
+            if detail_id:
+                try:
+                    offer_detail = OfferDetails.objects.get(id=detail_id, offer=instance)
+                    for attr, value in detail_data.items():
+                        setattr(offer_detail, attr, value)
+                    offer_detail.features = features
+                    offer_detail.save()
+                except OfferDetails.DoesNotExist:
+                    continue
+            else:
+                offer_detail = OfferDetails.objects.create(offer=instance, **detail_data)
+                offer_detail.features = features
+                offer_detail.save()
+
+        return instance
