@@ -41,7 +41,7 @@ class OfferCreateSerializer(serializers.ModelSerializer):
         """
         Validate that the offer contains at least three details.
         """
-        if len(value) > 3:
+        if len(value) < 3:
             raise serializers.ValidationError("An offer must contain at least three details.")
         return value
     
@@ -184,34 +184,79 @@ class SingleUpdateOfferSerializer(serializers.ModelSerializer):
             'id'
         ]
 
-    
-    def update(self, instance, validated_data):
-        details_data = validated_data.pop('offer_details', [])
+    def validate(self, attrs):
+        """
+        Validate that each offer detail includes an 'offer_type' field.
+        """
+
+        details_data = self.initial_data.get('details', [])
+        if details_data:
+            for detail in details_data:
+                if 'offer_type' not in detail:
+                    raise serializers.ValidationError("Each offer detail must include an 'offer_type'.")
+        return attrs
+
+    def _update_or_create_offer_details(self, instance, details_data):
+        """
+        Update existing offer details or create new ones based on the provided data. The 'offer_type' field is used to identify existing details.
+        """
+
+        for detail_data in details_data:
+            offer_type = detail_data.get('offer_type')
+            if offer_type:
+                try:
+                    detail = instance.offer_details.get(offer_type=offer_type)
+                    for attr, value in detail_data.items():
+                        setattr(detail, attr, value)
+                    detail.save()
+                except OfferDetails.DoesNotExist:
+                    OfferDetails.objects.create(offer=instance, **detail_data)
+                
+    def _recalculate_min_price_and_delivery_time(self, instance):
+
+        """
+        Recalculate the minimum price and delivery time for the offer based on its details. 
+        This should be called after updating or creating offer details to ensure that the offer's min_price and min_delivery_time fields are accurate.
+        """
+
+        details = instance.offer_details.all()
+        instance.min_price = min((detail.price for detail in details), default=None)
+        instance.min_delivery_time = min((detail.delivery_time_in_days for detail in details), default=None)
+        instance.save()
+
+    def _update_basic_offer_fields(self, instance, validated_data):
+
+        """
+        Update the basic fields of the offer (title, description, and image) based on the provided validated data. 
+        The image is handled separately to allow for file uploads, and the title and description are updated directly from the validated data.
+        """
+
+        instance.title = validated_data.get('title', instance.title)
+        instance.description = validated_data.get('description', instance.description)
+
         uploaded_image = validated_data.pop('image', None)
 
         if uploaded_image:
             file_upload = FileUpload.objects.create(file=uploaded_image)
             instance.image = file_upload
 
-        instance.title = validated_data.get('title', instance.title)
-        instance.description = validated_data.get('description', instance.description)
+        for attr, value in validated_data.items():
+            if attr != 'offer_details':
+                setattr(instance, attr, value)
         instance.save()
+    
+    def update(self, instance, validated_data):
 
-        for detail_data in details_data:
-            detail_id = detail_data.get('id')
-            features = detail_data.pop('features', [])
-            if detail_id:
-                try:
-                    offer_detail = OfferDetails.objects.get(id=detail_id, offer=instance)
-                    for attr, value in detail_data.items():
-                        setattr(offer_detail, attr, value)
-                    offer_detail.features = features
-                    offer_detail.save()
-                except OfferDetails.DoesNotExist:
-                    continue
-            else:
-                offer_detail = OfferDetails.objects.create(offer=instance, **detail_data)
-                offer_detail.features = features
-                offer_detail.save()
+        """
+        Update an offer instance with the provided validated data. 
+        This method handles updating the basic fields of the offer, as well as updating or creating offer details based on the provided details data. 
+        After updating the details, it recalculates the minimum price and delivery time for the offer to ensure that these fields are accurate.
+        """
 
+        self._update_basic_offer_fields(instance, validated_data)
+        details_data = validated_data.get('offer_details', [])
+        if details_data:
+            self._update_or_create_offer_details(instance, details_data)
+            self._recalculate_min_price_and_delivery_time(instance)
+        instance.refresh_from_db() 
         return instance
