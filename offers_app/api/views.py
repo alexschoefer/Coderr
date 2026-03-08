@@ -1,9 +1,9 @@
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsBusinessUser
+from .permissions import IsBusinessUser, SingleOfferPermission
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from .serializers import OfferCreateSerializer, OfferDetailsCreateSerializer, OfferDetailsSerializer, OfferListSerializer, SingleOfferDetailSerializer, SingleUpdateOfferSerializer
+from .serializers import OfferCreateSerializer, OfferDetailsCreateSerializer, OfferDetailsSerializer, OfferListSerializer, SingleOfferDetailSerializer, SingleUpdateOfferSerializer, SingleDeleteOfferSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.pagination import PageNumberPagination
@@ -106,7 +106,7 @@ class SingleOfferView(generics.RetrieveUpdateDestroyAPIView):
 
     queryset = Offer.objects.all()
     # serializer_class = SingleOfferDetailSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [SingleOfferPermission]
 
     def get_queryset(self):
         
@@ -119,7 +119,7 @@ class SingleOfferView(generics.RetrieveUpdateDestroyAPIView):
         elif self.request.method == "PATCH":
             return SingleUpdateOfferSerializer
         elif self.request.method == "DELETE":
-            pass
+            return SingleDeleteOfferSerializer
     
     def update(self, request, *args, **kwargs):
         # Handle PATCH request for updating offer details

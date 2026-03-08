@@ -260,3 +260,12 @@ class SingleUpdateOfferSerializer(serializers.ModelSerializer):
             self._recalculate_min_price_and_delivery_time(instance)
         instance.refresh_from_db() 
         return instance
+    
+class SingleDeleteOfferSerializer(serializers.ModelSerializer):
+
+    """Serializer for deleting a single offer."""
+
+    class Meta:
+        model = Offer
+        fields = ['id']
+        read_only_fields = ['id']
