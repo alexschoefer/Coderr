@@ -125,7 +125,7 @@ class OfferListSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.image.url)
         return None
 
-class SingleOfferDetailSerializer(serializers.ModelSerializer):
+class SingleOfferSerializer(serializers.ModelSerializer):
 
     """Serializer for retrieving a single offer detail."""
 
@@ -269,3 +269,15 @@ class SingleDeleteOfferSerializer(serializers.ModelSerializer):
         model = Offer
         fields = ['id']
         read_only_fields = ['id']
+
+class SingleDetailOfferSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = OfferDetails
+        fields = ['id', 
+                  'title', 
+                  'revisions', 
+                  'delivery_time_in_days', 
+                  'price', 
+                  'features', 
+                  'offer_type']

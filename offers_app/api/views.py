@@ -3,14 +3,14 @@ from rest_framework.permissions import IsAuthenticated
 from .permissions import IsBusinessUser, SingleOfferPermission
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from .serializers import OfferCreateSerializer, OfferDetailsCreateSerializer, OfferDetailsSerializer, OfferListSerializer, SingleOfferDetailSerializer, SingleUpdateOfferSerializer, SingleDeleteOfferSerializer
+from .serializers import OfferCreateSerializer, OfferDetailsCreateSerializer, OfferDetailsSerializer, OfferListSerializer, SingleOfferSerializer, SingleUpdateOfferSerializer, SingleDeleteOfferSerializer, SingleDetailOfferSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.pagination import PageNumberPagination
 from django.db.models import Min, Q
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter, SearchFilter
-from offers_app.models import Offer
+from offers_app.models import Offer, OfferDetails
 
 
 
@@ -105,7 +105,6 @@ class OffersListView(generics.ListCreateAPIView):
 class SingleOfferView(generics.RetrieveUpdateDestroyAPIView):
 
     queryset = Offer.objects.all()
-    # serializer_class = SingleOfferDetailSerializer
     permission_classes = [SingleOfferPermission]
 
     def get_queryset(self):
@@ -115,7 +114,7 @@ class SingleOfferView(generics.RetrieveUpdateDestroyAPIView):
     
     def get_serializer_class(self):
         if self.request.method == "GET":
-            return SingleOfferDetailSerializer
+            return SingleOfferSerializer
         elif self.request.method == "PATCH":
             return SingleUpdateOfferSerializer
         elif self.request.method == "DELETE":
@@ -132,6 +131,6 @@ class SingleOfferView(generics.RetrieveUpdateDestroyAPIView):
 
 class SingleDetailsOfferView(generics.RetrieveAPIView):
 
-    queryset = Offer.objects.all()
-    serializer_class = OfferDetailsSerializer
+    queryset = OfferDetails.objects.all()
+    serializer_class = SingleDetailOfferSerializer
     permission_classes = [IsAuthenticated]
