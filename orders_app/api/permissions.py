@@ -6,7 +6,7 @@ class IsUserCustomer(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.role == 'customer'
+        return request.user and request.user.is_authenticated and request.user.type == 'customer'
 
 class IsUserAdmin(permissions.BasePermission):
     """
