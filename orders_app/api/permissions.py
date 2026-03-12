@@ -15,3 +15,11 @@ class IsUserAdmin(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return request.user and request.user.is_authenticated and request.user.role == 'admin'
+    
+class IsUserBusiness(permissions.BasePermission):
+    """
+    Custom permission to only allow business users to access certain views.
+    """
+
+    def has_permission(self, request, view):
+        return request.user and request.user.is_authenticated and request.user.type == 'business'

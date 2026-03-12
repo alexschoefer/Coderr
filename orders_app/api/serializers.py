@@ -5,8 +5,8 @@ from profil_app.models import BusinessProfile, CustomerProfile
 
 class OrderListSerializer(serializers.ModelSerializer):
 
-    customer_user = serializers.PrimaryKeyRelatedField(read_only=True)
-    business_user = serializers.PrimaryKeyRelatedField(read_only=True)
+    customer_user = serializers.SerializerMethodField()
+    business_user = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -30,9 +30,21 @@ class OrderListSerializer(serializers.ModelSerializer):
             "updated_at"
         ]
 
+    def get_customer_user(self, obj):
+        if obj.customer_user:
+            return obj.customer_user.user.id
+        return None
+
+    def get_business_user(self, obj):
+        if obj.business_user:
+            return obj.business_user.user.id
+        return None
+
 class OrderCreateSerializer(serializers.ModelSerializer):
 
     offer_detail_id = serializers.IntegerField(write_only=True)
+    customer_user = serializers.SerializerMethodField()
+    business_user = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -112,3 +124,13 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
 
         return order
+    
+    def get_customer_user(self, obj):
+        if obj.customer_user:
+            return obj.customer_user.user.id
+        return None
+
+    def get_business_user(self, obj):
+        if obj.business_user:
+            return obj.business_user.user.id
+        return None
