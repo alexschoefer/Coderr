@@ -10,11 +10,15 @@ class IsUserCustomer(permissions.BasePermission):
 
 class IsUserAdmin(permissions.BasePermission):
     """
-    Custom permission to only allow admins to access certain views.
+    Allow access only to admin or staff users.
     """
 
     def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.role == 'admin'
+        return (
+            request.user
+            and request.user.is_authenticated
+            and (request.user.is_staff or request.user.is_superuser)
+        )
     
 class IsUserBusiness(permissions.BasePermission):
     """

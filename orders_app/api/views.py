@@ -44,7 +44,7 @@ class SingleOrderView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method == 'PATCH':
             return OrderListSerializer
         if self.request.method == 'DELETE':
-            return 10
+            return OrderListSerializer
         
     def get_permissions(self):
         if self.request.method == 'PATCH':
