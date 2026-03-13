@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'upload_app',
     'django_filters',
     'orders_app',
+    'reviews_app',
     'rest_framework',
     'rest_framework.authtoken',
 ]
