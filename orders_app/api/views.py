@@ -54,3 +54,24 @@ class SingleOrderView(generics.RetrieveUpdateDestroyAPIView):
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
+    
+class InProgressOrderListView(APIView):
+    """
+    API view to list all orders that are currently in progress.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        """
+        Retrieves the count of orders that are currently in progress for a specific business user.
+        """
+
+        bussiness_user_id = self.kwargs.get('pk')
+
+        try:
+            business_profile = BusinessProfile.objects.get(user__id=bussiness_user_id)
+        except BusinessProfile.DoesNotExist:
+            return Response({"detail": "Business profile not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        order_count_in_progress = Order.objects.filter(business_user=business_profile, status='in_progress').count()
+        return Response({"in_progress_order_count": order_count_in_progress}, status=status.HTTP_200_OK)
