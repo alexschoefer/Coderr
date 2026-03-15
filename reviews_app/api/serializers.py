@@ -1,7 +1,5 @@
 from rest_framework import serializers
 from reviews_app.models import Review
-from auth_app.models import CustomUser
-from profil_app.models import BusinessProfile, CustomerProfile
 
 class ReviewListSerializer(serializers.ModelSerializer):
     """
@@ -22,9 +20,15 @@ class ReviewListSerializer(serializers.ModelSerializer):
                   'updated_at']
     
     def get_reviewer(self, obj):
+        """ 
+        Returns the ID of the reviewer if it exists, otherwise returns None.
+        """
         return obj.reviewer.user.id if obj.reviewer else None
     
     def get_business_user(self, obj):
+        """ 
+        Returns the ID of the business user if it exists, otherwise returns None.
+        """
         return obj.business_user.user.id if obj.business_user else None  
     
 
@@ -48,6 +52,9 @@ class SingleReviewSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
     def _validation_description(self, value):
+        """ 
+        Validates the description field to ensure it is at least 50 characters long if it is provided in the initial data.
+        """
         if 'description' in self.initial_data:
             description = self.initial_data['description']
             if len(description) > 50:
@@ -55,7 +62,13 @@ class SingleReviewSerializer(serializers.ModelSerializer):
         return value
     
     def get_reviewer(self, obj):
+        """ 
+        Returns the ID of the reviewer if it exists, otherwise returns None.
+        """
         return obj.reviewer.user.id if obj.reviewer else None
     
     def get_business_user(self, obj):
-        return obj.business_user.user.id if obj.business_user else None
+        """ 
+        Returns the ID of the business user if it exists, otherwise returns None.
+        """
+        return obj.business_user.user.id if obj.business_user else None 
