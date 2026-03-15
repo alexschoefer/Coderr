@@ -2,6 +2,7 @@ from rest_framework import generics
 from .serializers import ReviewListSerializer, SingleReviewSerializer
 from reviews_app.models import Review
 from rest_framework.permissions import IsAuthenticated
+from .permissions import IsOwnerOfReview, IsAuthenticated, IsUserAuthorizedToCreateReview
 from rest_framework.exceptions import ValidationError
 from profil_app.models import CustomerProfile, BusinessProfile
 from django_filters.rest_framework import DjangoFilterBackend
@@ -68,3 +69,9 @@ class ReviewListCreateAPIView(generics.ListCreateAPIView):
             reviewer=customer_user,
             business_user=business_user
         )
+
+class ReviewRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+
+    permission_classes = [IsOwnerOfReview, IsAuthenticated, IsUserAuthorizedToCreateReview]
+    queryset = Review.objects.all()
+    serializer_class = SingleReviewSerializer
