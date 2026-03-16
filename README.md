@@ -105,6 +105,56 @@ Authorization: Token your_token_here
 
 <hr>
 
+<h2>🛠 Superuser & Admin Access</h2>
+
+<p>
+For administrative tasks, Coderr provides access to the Django admin interface.
+A superuser account is required to manage users, developer profiles, offers,
+and other database objects.
+</p>
+
+<h3>1. Create a Superuser</h3>
+
+<pre>
+python manage.py createsuperuser
+</pre>
+
+<p>
+Follow the prompts to create an admin username, email, and password.
+</p>
+
+<h3>2. Start the Development Server</h3>
+
+<pre>
+python manage.py runserver
+</pre>
+
+<h3>3. Access the Admin Panel</h3>
+
+<p>
+Open the following URL in your browser:
+</p>
+
+<pre>
+http://127.0.0.1:8000/admin/
+</pre>
+
+<p>
+Log in using the superuser credentials you created earlier.
+</p>
+
+<h3>4. Admin Capabilities</h3>
+
+<ul>
+<li>Manage registered users</li>
+<li>Edit developer profiles</li>
+<li>View and modify offers</li>
+<li>Inspect database entries</li>
+<li>Debug application data</li>
+</ul>
+
+<hr>
+
 <h2>📚 API Overview</h2>
 
 <h3>Authentication</h3>
@@ -130,7 +180,7 @@ Authorization: Token your_token_here
 
 </table>
 
-<h3>Developer Profiles</h3>
+<h3>Business and Customer Profiles</h3>
 
 <table>
 
@@ -142,22 +192,27 @@ Authorization: Token your_token_here
 
 <tr>
 <td>GET</td>
-<td>/api/developers/</td>
-<td>List available developer profiles</td>
+<td>/api/profiles/business</td>
+<td>List available business profiles</td>
 </tr>
 
 <tr>
 <td>GET</td>
-<td>/api/developers/&lt;id&gt;/</td>
-<td>Retrieve developer profile details</td>
+<td>/api/profiles/customer</td>
+<td>List available customer profiles</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>/api/profiles/&lt;id&gt;/</td>
+<td>Retrieve business profile or customer profile</td>
 </tr>
 
 <tr>
 <td>PATCH</td>
-<td>/api/developers/&lt;id&gt;/</td>
-<td>Update developer profile</td>
+<td>/api/profiles/&lt;id&gt;/</td>
+<td>Update business profile or customer profile</td>
 </tr>
-
 </table>
 
 <h3>Offers</h3>
@@ -201,6 +256,109 @@ Authorization: Token your_token_here
 </tr>
 
 </table>
+
+<h3>Orders</h3>
+
+<table>
+
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td>POST</td>
+<td>/api/orders/</td>
+<td>Create a new order</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>/api/orders/</td>
+<td>List available orders</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>/api/order-count/&lt;id&gt;/</td>
+<td>Returns the number of active orders for a specific business user</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>/api/completed-order-count/&lt;id&gt;/</td>
+<td>Returns the number of completed orders for a specific business user</td>
+</tr>
+
+<tr>
+<td>PATCH</td>
+<td>/api/orders/&lt;id&gt;/</td>
+<td>Update an order</td>
+</tr>
+
+<tr>
+<td>DELETE</td>
+<td>/api/offers/&lt;id&gt;/</td>
+<td>Delete an offer</td>
+</tr>
+
+</table>
+
+<h3>Review</h3>
+
+<table>
+
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td>POST</td>
+<td>/api/reviews/</td>
+<td>Create a new review</td>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>/api/reviews/</td>
+<td>List available reviews</td>
+</tr>
+
+<tr>
+<td>PATCH</td>
+<td>/api/reviews/&lt;id&gt;/</td>
+<td>Update a review</td>
+</tr>
+
+<tr>
+<td>DELETE</td>
+<td>/api/review/&lt;id&gt;/</td>
+<td>Delete a review</td>
+</tr>
+
+</table>
+
+<h3>Base-Info</h3>
+
+<table>
+
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+
+<tr>
+<td>GET</td>
+<td>/api/base-info/</td>
+<td>Provides general background information about the platform</td>
+</tr>
+
+</table>
+
 
 <hr>
 
