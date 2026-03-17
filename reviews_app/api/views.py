@@ -2,15 +2,14 @@ from rest_framework import generics
 from .serializers import ReviewListSerializer, SingleReviewSerializer
 from reviews_app.models import Review
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsOwnerOfReview, IsAuthenticated, IsUserAuthorizedToCreateReview
+from .permissions import IsOwnerOfReview, IsUserAuthorizedToCreateReview
 from rest_framework.exceptions import ValidationError
 from profil_app.models import CustomerProfile, BusinessProfile
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
+from rest_framework.exceptions import PermissionDenied
 
 class ReviewListCreateAPIView(generics.ListCreateAPIView):
-
-    permission_classes = [IsAuthenticated]
 
     filter_backends = [DjangoFilterBackend, OrderingFilter]
 
@@ -18,6 +17,11 @@ class ReviewListCreateAPIView(generics.ListCreateAPIView):
 
     ordering_fields = ["updated_at", "rating"]
     ordering = ["-updated_at"]
+
+    def get_permissions(self):
+        if self.request.method == 'POST':
+            return [IsAuthenticated(), IsUserAuthorizedToCreateReview()]
+        return [IsAuthenticated()]
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -63,7 +67,7 @@ class ReviewListCreateAPIView(generics.ListCreateAPIView):
             reviewer=customer_user,
             business_user=business_user
         ).exists():
-            raise ValidationError("You have already reviewed this business.")
+            raise PermissionDenied("You have already reviewed this business.")
 
         serializer.save(
             reviewer=customer_user,
@@ -72,6 +76,6 @@ class ReviewListCreateAPIView(generics.ListCreateAPIView):
 
 class ReviewRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
 
-    permission_classes = [IsOwnerOfReview, IsAuthenticated, IsUserAuthorizedToCreateReview]
+    permission_classes = [IsOwnerOfReview, IsAuthenticated]
     queryset = Review.objects.all()
     serializer_class = SingleReviewSerializer
