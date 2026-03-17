@@ -5,6 +5,9 @@ from upload_app.models import FileUpload
 
 
 class OfferDetailsSerializer(serializers.ModelSerializer):
+    """
+    Serializer for retrieving offer details. The 'url' field provides a link to the detail view of the offer detail instance.
+    """
 
     url = serializers.SerializerMethodField()
     
@@ -14,10 +17,15 @@ class OfferDetailsSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'url']
     
     def get_url(self, obj):
+            """Return the URL for the offer detail instance. This method constructs the URL based on the offer's ID and the detail's ID, following the pattern defined in the API URLs."""
             return f"/api/offers/{obj.offer.id}/details/{obj.id}/"
 
 class OfferDetailsCreateSerializer(serializers.ModelSerializer):
-
+    """
+    Serializer for creating and updating offer details. 
+    This serializer includes fields for the offer detail's title, revisions, delivery time, price, features, and offer type. 
+    The 'features' field is a list of strings that can be provided when creating or updating an offer detail.
+    """
     features = serializers.ListField(child=serializers.CharField(), required=False)
     
     class Meta:
@@ -29,7 +37,9 @@ class OfferDetailsCreateSerializer(serializers.ModelSerializer):
         }
 
 class OfferCreateSerializer(serializers.ModelSerializer):
-
+    """
+    Serializer for creating offers. This serializer includes fields for the offer's title, description, and an optional image.
+    """
     details = OfferDetailsCreateSerializer(source='offer_details', many=True)
     
     class Meta:
@@ -67,14 +77,18 @@ class OfferCreateSerializer(serializers.ModelSerializer):
     
 
 class UserDetailsSerializer(serializers.Serializer):
-        
+    """
+    Serializer for retrieving user details associated with an offer. This serializer includes the user's first name, last name, and username.
+    """
     first_name = serializers.CharField()
     last_name = serializers.CharField()
     username = serializers.CharField()
 
 
 class OfferListSerializer(serializers.ModelSerializer):
-
+    """
+    Serializer for listing offers with their details and associated user information.
+    """
     details = OfferDetailsSerializer(source='offer_details', many=True, read_only=True)
     user_details = UserDetailsSerializer(source='user', read_only=True)
     image = serializers.SerializerMethodField()
@@ -126,7 +140,6 @@ class OfferListSerializer(serializers.ModelSerializer):
         return None
 
 class SingleOfferSerializer(serializers.ModelSerializer):
-
     """Serializer for retrieving a single offer detail."""
 
     details = OfferDetailsSerializer(source='offer_details', many=True, read_only=True)

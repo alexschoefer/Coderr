@@ -366,8 +366,8 @@ Log in using the superuser credentials you created earlier.
 
 <ul>
 <li>Only authenticated users can access protected endpoints</li>
-<li>Developers can only manage their own profiles and offers</li>
-<li>Clients can browse developers and available offers</li>
+<li>Business user can only manage their own profiles and offers</li>
+<li>Customer can browse developers and available offers</li>
 <li>Only offer owners can update or delete their offers</li>
 <li>Orders can only be accessed by the involved users</li>
 </ul>

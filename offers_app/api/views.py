@@ -23,23 +23,34 @@ class PageSizeNumberPagination(PageNumberPagination):
     
 
 class OffersListView(generics.ListCreateAPIView):
+    """
+    View for listing all offers and creating new offers. Supports filtering by creator, minimum price, and maximum delivery time, as well as searching by title and description.
+    """
 
-    permission_classes = [IsAuthenticated]
     pagination_class = PageSizeNumberPagination
 
     filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
     ordering_fields = ["updated_at", "annotated_min_price"]
     search_fields = ["title", "description"]
 
+    def get_permissions(self):
+        """Return different permissions based on the request method. Only business users can create offers, while all authenticated users can view offers."""
+        if self.request.method == "POST":
+            return [IsBusinessUser()]
+        return [IsAuthenticated()]
+
     def get_serializer_class(self):
+        """Return different serializers based on the request method. Use OfferCreateSerializer for POST requests and OfferListSerializer for GET requests."""
         if self.request.method == "POST":
             return OfferCreateSerializer
         return OfferListSerializer
 
     def perform_create(self, serializer):
+        """Override the default create behavior to associate the new offer with the authenticated user."""
         serializer.save(user=self.request.user)
 
     def get_queryset(self):
+        """"Override the default queryset to apply custom filtering and searching logic."""
         queryset = self._get_base_queryset()
         queryset = self._apply_filters(queryset)
         queryset = self._apply_search(queryset)
@@ -103,16 +114,23 @@ class OffersListView(generics.ListCreateAPIView):
         return queryset
 
 class SingleOfferView(generics.RetrieveUpdateDestroyAPIView):
-
+    """
+    View for retrieving, updating, and deleting a single offer. 
+    Only the owner of the offer can update or delete it, while all authenticated users can view the offer details.
+    """
     queryset = Offer.objects.all()
     permission_classes = [SingleOfferPermission]
 
     def get_queryset(self):
-        
+        """Override the default queryset to prefetch related offer details for the specific offer being accessed."""
         pk = self.kwargs.get("pk")
         return Offer.objects.filter(pk=pk).prefetch_related("offer_details")
     
     def get_serializer_class(self):
+        """
+        Return different serializers based on the request method. 
+        Use SingleOfferSerializer for GET requests, SingleUpdateOfferSerializer for PATCH requests, and SingleDeleteOfferSerializer for DELETE requests.
+        """
         if self.request.method == "GET":
             return SingleOfferSerializer
         elif self.request.method == "PATCH":
@@ -121,7 +139,7 @@ class SingleOfferView(generics.RetrieveUpdateDestroyAPIView):
             return SingleDeleteOfferSerializer
     
     def update(self, request, *args, **kwargs):
-        # Handle PATCH request for updating offer details
+        """Override the default update behavior to allow partial updates (PATCH) and ensure that only the owner of the offer can update it."""
         partial = kwargs.pop('partial', True)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -130,7 +148,7 @@ class SingleOfferView(generics.RetrieveUpdateDestroyAPIView):
         return Response(serializer.data)
 
 class SingleDetailsOfferView(generics.RetrieveAPIView):
-
+    """View for retrieving the details of a single offer detail. All authenticated users can view the offer detail information."""
     queryset = OfferDetails.objects.all()
     serializer_class = SingleDetailOfferSerializer
     permission_classes = [IsAuthenticated]
