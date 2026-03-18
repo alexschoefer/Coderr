@@ -67,7 +67,7 @@ class ReviewListCreateAPIView(generics.ListCreateAPIView):
             reviewer=customer_user,
             business_user=business_user
         ).exists():
-            raise PermissionDenied("You have already reviewed this business.")
+            raise ValidationError("You have already reviewed this business.")
 
         serializer.save(
             reviewer=customer_user,
