@@ -37,28 +37,42 @@ class SingleReviewSerializer(serializers.ModelSerializer):
     Serializer for a single Review instance.
     """
 
-    business_user = serializers.SerializerMethodField(read_only=True)
-    reviewer = serializers.SerializerMethodField(read_only=True)
+    business_user = serializers.IntegerField(write_only=True)
+    business_user_id = serializers.SerializerMethodField()
+    reviewer_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Review
-        fields = ['id', 
-                  'business_user', 
-                  'reviewer', 
-                  'rating', 
-                  'description', 
-                  'created_at', 
-                  'updated_at']
+        fields = [
+            'id',
+            'business_user',
+            'business_user_id',
+            'reviewer_id',
+            'rating',
+            'description',
+            'created_at',
+            'updated_at'
+        ]
         read_only_fields = ['id', 'created_at', 'updated_at']
 
-    def _validation_description(self, value):
+    def validate_description(self, value):
         """ 
         Validates the description field to ensure it is at least 50 characters long if it is provided in the initial data.
         """
         if 'description' in self.initial_data:
             description = self.initial_data['description']
-            if len(description) > 50:
-                raise serializers.ValidationError("Description can only be at least 50 characters long.")
+            if value and len(description) > 50:
+                raise serializers.ValidationError("For Description only 50 characters are allowed.")
+        return value
+    
+    def validate_rating(self, value):
+        """ 
+        Validates the rating field to ensure it is an integer between 1 and 5.
+        """
+        if not isinstance(value, int):
+            raise serializers.ValidationError("Rating must be an integer.")
+        if not 1 <= value <= 5:
+            raise serializers.ValidationError("Rating must be between 1 and 5.")
         return value
     
     def get_reviewer(self, obj):
