@@ -41,10 +41,11 @@ class OfferCreateSerializer(serializers.ModelSerializer):
     Serializer for creating offers. This serializer includes fields for the offer's title, description, and an optional image.
     """
     details = OfferDetailsCreateSerializer(source='offer_details', many=True)
+    image = serializers.FileField(required=False, allow_null=True)
     
     class Meta:
         model = Offer
-        fields = ['id', 'title', 'description', 'details']
+        fields = ['id', 'title', 'image','description', 'details']
         read_only_fields = ['id']
 
     def validate_details(self, value):

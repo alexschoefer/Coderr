@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from profil_app.models import BusinessProfile, CustomerProfile
+from upload_app.models import FileUpload
 
 def get_file_url(user):
     """
@@ -10,6 +11,10 @@ def get_file_url(user):
     return None
 
 class CustomerProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the CustomerProfile model, including user information and file URL.
+    """
+
     user = serializers.IntegerField(source="user.id", read_only=True)
     username = serializers.CharField(source="user.username", read_only=True)
     first_name = serializers.CharField(source="user.first_name", read_only=True)
@@ -28,14 +33,19 @@ class CustomerProfileSerializer(serializers.ModelSerializer):
             "last_name",
             "email",
             "created_at",
-            "type",
             "file",
+            "type",
+            
         ]
 
     def get_file(self, obj):
+        """Return the file URL for the user's uploaded file, or None if no file exists."""
         return get_file_url(obj.user)
 
 class BusinessProfileSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the BusinessProfile model, including user information and file URL.
+    """
     user = serializers.IntegerField(source="user.id", read_only=True)
     username = serializers.CharField(source="user.username", read_only=True)
     first_name = serializers.CharField(source="user.first_name", read_only=True)

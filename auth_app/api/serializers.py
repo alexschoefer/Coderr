@@ -1,7 +1,9 @@
 from rest_framework import serializers
 from auth_app.models import CustomUser
-from django.contrib.auth.models import AbstractUser
+from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
+from profil_app.models import CustomerProfile, BusinessProfile
+from upload_app.models import FileUpload
 
 class RegistrationSerializer(serializers.ModelSerializer):
 
@@ -68,6 +70,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
             password=validated_data['password'],
             type=validated_data['type'],
         )
+        if user.type == 'customer':
+            CustomerProfile.objects.create(user=user)
+        else:
+            BusinessProfile.objects.create(user=user)
+        Token.objects.create(user=user)
+        return user
         return user
     
 

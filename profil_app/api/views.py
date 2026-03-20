@@ -35,13 +35,10 @@ class UserProfileView(APIView):
         """
         Retrieve a specific profile by user ID.
         """
-        # Retrieve the user object
         user_obj = get_object_or_404(CustomUser, pk=pk)
 
-        # Determine the profile type and retrieve the profile
         profile = self._get_profile(user_obj)
 
-        # Serialize the profile data
         serializer = self._get_detail_serializer(profile)
         return Response(serializer.data)
 
@@ -49,19 +46,15 @@ class UserProfileView(APIView):
         """
         Update a specific profile by user ID.
         """
-        # Retrieve the user object
         user_obj = get_object_or_404(CustomUser, pk=pk)
 
-        # Check if the authenticated user is the owner of the profile
         if request.user != user_obj:
             return Response({"detail": "You do not have permission to update this profile."}, status=status.HTTP_403_FORBIDDEN)
 
-        # Determine the profile type and retrieve the profile
         profile = self._get_profile(user_obj)
 
-        # Serialize the profile data with the incoming request data
         serializer = self._get_detail_serializer(profile, data=request.data, partial=True)
-        if serializer.is_valid():
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -77,14 +70,17 @@ class UserProfileView(APIView):
         raise Http404("Profile not found for the given user type.")
 
     def _get_detail_serializer(self, profile, data=None, partial=False):
-        """
-        Return the appropriate serializer for the profile.
-        """
         if isinstance(profile, CustomerProfile):
-            return CustomerProfileSerializer(profile, data=data, partial=partial)
+            serializer_class = CustomerProfileSerializer
         elif isinstance(profile, BusinessProfile):
-            return BusinessProfileSerializer(profile, data=data, partial=partial)
-        raise ValueError("Invalid profile type.")
+            serializer_class = BusinessProfileSerializer
+        else:
+            raise ValueError("Invalid profile type.")
+
+        if data is not None:
+            return serializer_class(profile, data=data, partial=partial)
+
+        return serializer_class(profile)
     
 
 class BusinessProfileListView(generics.ListAPIView):
