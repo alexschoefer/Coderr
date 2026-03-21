@@ -9,7 +9,7 @@ from django.shortcuts import get_object_or_404
 
 from auth_app.models import CustomUser
 from profil_app.models import BusinessProfile, CustomerProfile
-from profil_app.api.serializers import BusinessProfileSerializer, CustomerProfileSerializer
+from profil_app.api.serializers import BusinessProfileSerializer, CustomerProfileSerializer, BusinessProfilUpdateSerializer, CustomerProfileUpdateSerializer, CustomerProfileResponseSerializer, BusinessProfilResponseSerializer
 
 
 class BusinessProfileDetailView(generics.RetrieveAPIView):
@@ -53,10 +53,11 @@ class UserProfileView(APIView):
 
         profile = self._get_profile(user_obj)
 
-        serializer = self._get_detail_serializer(profile, data=request.data, partial=True)
+        serializer = self._get_update_serializer(profile, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data)
+            response_serializer = self._get_detail_serializer(profile)
+            return Response(response_serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def _get_profile(self, user_obj):
@@ -70,18 +71,28 @@ class UserProfileView(APIView):
         raise Http404("Profile not found for the given user type.")
 
     def _get_detail_serializer(self, profile, data=None, partial=False):
-        if isinstance(profile, CustomerProfile):
-            serializer_class = CustomerProfileSerializer
-        elif isinstance(profile, BusinessProfile):
-            serializer_class = BusinessProfileSerializer
-        else:
-            raise ValueError("Invalid profile type.")
-
+        """
+        Return the appropriate serializer instance based on the profile type.
+        """
         if data is not None:
-            return serializer_class(profile, data=data, partial=partial)
-
-        return serializer_class(profile)
+            if isinstance(profile, BusinessProfile):
+                return BusinessProfilUpdateSerializer(profile, data=data, partial=partial)
+            elif isinstance(profile, CustomerProfile):
+                return CustomerProfileUpdateSerializer(profile, data=data, partial=partial)
+        else:
+            if isinstance(profile, CustomerProfile):
+                return CustomerProfileSerializer(profile)
+            elif isinstance(profile, BusinessProfile):
+                return BusinessProfilResponseSerializer(profile)
     
+    def _get_update_serializer(self, profile, data):
+        """
+        Return the appropriate serializer instance for updating based on the profile type.
+        """
+        if isinstance(profile, BusinessProfile):
+            return BusinessProfilUpdateSerializer(profile, data=data, partial=True)
+        elif isinstance(profile, CustomerProfile):
+            return CustomerProfileUpdateSerializer(profile, data=data, partial=True)
 
 class BusinessProfileListView(generics.ListAPIView):
     """
