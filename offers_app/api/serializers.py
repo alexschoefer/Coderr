@@ -2,7 +2,15 @@ from rest_framework import serializers
 from offers_app.models import Offer, OfferDetails
 from profil_app.models import CustomerProfile, BusinessProfile
 from upload_app.models import FileUpload
+from django.db.models import Min
 
+def get_image_url(offer):
+    """
+    Helper-function - Return the file URL for an offer's uploaded image, or None.
+    """
+    if offer.image and offer.image.file:
+        return offer.image.file.url
+    return ""
 
 class OfferDetailsSerializer(serializers.ModelSerializer):
     """
@@ -17,8 +25,8 @@ class OfferDetailsSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'url']
     
     def get_url(self, obj):
-            """Return the URL for the offer detail instance. This method constructs the URL based on the offer's ID and the detail's ID, following the pattern defined in the API URLs."""
-            return f"/api/offers/{obj.offer.id}/details/{obj.id}/"
+        """Return the URL for the offer detail instance."""
+        return f"/offersdetails/{obj.id}/"
 
 class OfferDetailsCreateSerializer(serializers.ModelSerializer):
     """
@@ -145,6 +153,8 @@ class SingleOfferSerializer(serializers.ModelSerializer):
 
     details = OfferDetailsSerializer(source='offer_details', many=True, read_only=True)
     image = serializers.SerializerMethodField()
+    min_price = serializers.SerializerMethodField()
+    min_delivery_time = serializers.SerializerMethodField()
 
     class Meta:
         model = Offer
@@ -170,14 +180,31 @@ class SingleOfferSerializer(serializers.ModelSerializer):
         ]
     
     def get_image(self, obj):
-        """
-        Return the full URL of the image if it exists, otherwise return None.
-        """
-        request = self.context.get('request')
-        if obj.image and request:
-            return request.build_absolute_uri(obj.image.url)
-        return None
-    
+            """Return the file URL for the offer's image, or None."""
+            return get_image_url(obj)
+
+    def get_min_price(self, obj):
+            """
+            Return the minimum price for the offer. If the offer has a min_price field set, return that value. 
+            Otherwise, calculate the minimum price from the offer details. 
+            If there are no offer details, return 0.
+            """
+            if obj.min_price is not None:
+                return obj.min_price
+            if obj.offer_details.exists():
+                return obj.offer_details.aggregate(Min('price'))['price__min'] or 0
+            return 0
+
+    def get_min_delivery_time(self, obj):
+            """
+            Return the minimum delivery time for the offer. If the offer has a min_delivery_time field set, return that value.
+            """
+            if obj.min_delivery_time is not None:
+                return obj.min_delivery_time
+            if obj.offer_details.exists():
+                    return obj.offer_details.aggregate(Min('delivery_time_in_days'))['delivery_time_in_days__min'] or 0
+            return 0
+                
 class SingleUpdateOfferSerializer(serializers.ModelSerializer):
 
     """Serializer for updating a single offer."""
