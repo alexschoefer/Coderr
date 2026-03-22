@@ -37,17 +37,16 @@ class SingleReviewSerializer(serializers.ModelSerializer):
     Serializer for a single Review instance.
     """
 
-    business_user = serializers.IntegerField(write_only=True)
-    business_user_id = serializers.SerializerMethodField()
-    reviewer_id = serializers.SerializerMethodField()
+    business_user = serializers.SerializerMethodField()
+    # business_user_id = serializers.SerializerMethodField()
+    reviewer= serializers.SerializerMethodField()
 
     class Meta:
         model = Review
         fields = [
             'id',
             'business_user',
-            'business_user_id',
-            'reviewer_id',
+            'reviewer',
             'rating',
             'description',
             'created_at',
@@ -73,13 +72,13 @@ class SingleReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Rating must be between 1 and 5.")
         return value
     
-    def get_reviewer_id(self, obj):
+    def get_reviewer(self, obj):
         """ 
         Returns the ID of the reviewer if it exists, otherwise returns None.
         """
         return obj.reviewer.user.id if obj.reviewer else None
     
-    def get_business_user_id(self, obj):
+    def get_business_user(self, obj):
         """ 
         Returns the ID of the business user if it exists, otherwise returns None.
         """
