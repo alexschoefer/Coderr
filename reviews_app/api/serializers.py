@@ -59,10 +59,8 @@ class SingleReviewSerializer(serializers.ModelSerializer):
         """ 
         Validates the description field to ensure it is at least 50 characters long if it is provided in the initial data.
         """
-        if 'description' in self.initial_data:
-            description = self.initial_data['description']
-            if value and len(description) > 50:
-                raise serializers.ValidationError("For Description only 50 characters are allowed.")
+        if value and len(value) > 50:
+            raise serializers.ValidationError("For Description only 50 characters are allowed.")
         return value
     
     def validate_rating(self, value):
@@ -75,13 +73,13 @@ class SingleReviewSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Rating must be between 1 and 5.")
         return value
     
-    def get_reviewer(self, obj):
+    def get_reviewer_id(self, obj):
         """ 
         Returns the ID of the reviewer if it exists, otherwise returns None.
         """
         return obj.reviewer.user.id if obj.reviewer else None
     
-    def get_business_user(self, obj):
+    def get_business_user_id(self, obj):
         """ 
         Returns the ID of the business user if it exists, otherwise returns None.
         """
