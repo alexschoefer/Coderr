@@ -2,9 +2,11 @@ from rest_framework import serializers
 from orders_app.models import Order
 from offers_app.models import Offer, OfferDetails
 from profil_app.models import BusinessProfile, CustomerProfile
+from rest_framework.response import Response
+from rest_framework import status
 
 class OrderListSerializer(serializers.ModelSerializer):
-
+    """Serializer for listing Order instances with related user IDs."""
     customer_user = serializers.SerializerMethodField()
     business_user = serializers.SerializerMethodField()
 
@@ -31,17 +33,19 @@ class OrderListSerializer(serializers.ModelSerializer):
         ]
 
     def get_customer_user(self, obj):
+        """Helper method to get customer user ID or return None."""
         if obj.customer_user:
             return obj.customer_user.user.id
         return None
 
     def get_business_user(self, obj):
+        """Helper method to get business user ID or return None."""
         if obj.business_user:
             return obj.business_user.user.id
         return None
 
 class OrderCreateSerializer(serializers.ModelSerializer):
-
+    """Serializer for creating Order instances from OfferDetails."""
     offer_detail_id = serializers.IntegerField(write_only=True)
     customer_user = serializers.SerializerMethodField()
     business_user = serializers.SerializerMethodField()
@@ -122,15 +126,17 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             features=[f for f in offer_detail.features]
         )
 
-
         return order
     
     def get_customer_user(self, obj):
-        if obj.customer_user:
-            return obj.customer_user.user.id
-        return None
+        """Helper method to get customer user ID or return None."""
+        try:
+            return CustomerProfile.objects.get(user=obj.customer_user.user).user.id
+        except CustomerProfile.DoesNotExist:
+            return None, Response({"error": "Customer profile not found for user"}, status=status.HTTP_403_FORBIDDEN)    
 
     def get_business_user(self, obj):
+        """Helper method to get business user ID or return None."""
         if obj.business_user:
             return obj.business_user.user.id
         return None

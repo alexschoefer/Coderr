@@ -1,6 +1,6 @@
 from rest_framework import generics, status
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsBusinessUser, SingleOfferPermission
+from .permissions import IsBusinessUser, SingleOfferPermission, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from .serializers import OfferCreateSerializer, OfferDetailsCreateSerializer, OfferDetailsSerializer, OfferListSerializer, SingleOfferSerializer, SingleUpdateOfferSerializer, SingleDeleteOfferSerializer, SingleDetailOfferSerializer
@@ -37,7 +37,7 @@ class OffersListView(generics.ListCreateAPIView):
         """Return different permissions based on the request method. Only business users can create offers, while all authenticated users can view offers."""
         if self.request.method == "POST":
             return [IsBusinessUser()]
-        return [IsAuthenticated()]
+        return [IsAuthenticatedOrReadOnly()]
 
     def get_serializer_class(self):
         """Return different serializers based on the request method. Use OfferCreateSerializer for POST requests and OfferListSerializer for GET requests."""

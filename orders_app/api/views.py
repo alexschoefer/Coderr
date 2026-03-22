@@ -13,8 +13,21 @@ class OrderListAPIView(generics.ListCreateAPIView):
     """
     API view to list all orders or create a new order.
     """
-    queryset = Order.objects.all()
-    
+    serializer_class = OrderListSerializer
+    # queryset = Order.objects.all()
+
+    def get_queryset(self):
+        """Returns a queryset of orders based on the type of the authenticated user."""
+        user = self.request.user
+
+        if user.type == "customer":
+            return Order.objects.filter(customer_user__user=user)
+
+        if user.type == "business":
+            return Order.objects.filter(business_user__user=user)
+
+        return Order.objects.none()
+        
     def get_serializer_class(self):
         if self.request.method == 'POST':
             return OrderCreateSerializer

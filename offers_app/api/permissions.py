@@ -36,3 +36,14 @@ class SingleOfferPermission(permissions.BasePermission):
         if request.method in ['PUT', 'PATCH', 'DELETE']:
             return request.user and request.user.is_authenticated and obj.user == request.user
         return True
+    
+class IsAuthenticatedOrReadOnly(permissions.BasePermission):
+    """
+    Custom permission to allow authenticated users to create offers, and allow read-only access to all users.
+    """
+
+    def has_permission(self, request, view):
+        """Allow authenticated users to create offers, and allow read-only access to all users."""
+        if request.method in ['POST']:
+            return request.user and request.user.is_authenticated
+        return True
