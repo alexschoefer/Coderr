@@ -28,12 +28,16 @@ class OrderListAPIView(generics.ListCreateAPIView):
 
         return Order.objects.none()
         
-    def get_serializer_class(self):
-        if self.request.method == 'POST':
-            return OrderCreateSerializer
-        return OrderListSerializer
+    def create(self, request, *args, **kwargs):
+        """Handles the creation of a new order based on the provided offer details and the authenticated user."""
+        serializer = OrderCreateSerializer(data=request.data, context={"request": request})
+        serializer.is_valid(raise_exception=True)
+        order = serializer.save()
+
+        return Response(OrderListSerializer(order).data, status=201)
     
     def get_permissions(self):
+        """Returns the appropriate permission classes based on the HTTP method of the request."""
         if self.request.method == 'POST':
             permission_classes = [IsAuthenticated, IsUserCustomer]
         else:

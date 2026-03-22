@@ -9,6 +9,7 @@ class OrderListSerializer(serializers.ModelSerializer):
     """Serializer for listing Order instances with related user IDs."""
     customer_user = serializers.SerializerMethodField()
     business_user = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
@@ -43,6 +44,10 @@ class OrderListSerializer(serializers.ModelSerializer):
         if obj.business_user:
             return obj.business_user.user.id
         return None
+    
+    def get_price(self, obj):
+        """Helper method to get price as an integer."""
+        return int(obj.price)
 
 class OrderCreateSerializer(serializers.ModelSerializer):
     """Serializer for creating Order instances from OfferDetails."""
@@ -53,6 +58,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
+            "id",
             "offer_detail_id",
             "customer_user",
             "business_user",
@@ -67,6 +73,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             "updated_at"
         ]
         read_only_fields = [
+            "offer_detail_id",
             "customer_user",
             "business_user",
             "title",
