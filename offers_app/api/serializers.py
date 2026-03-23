@@ -3,6 +3,7 @@ from offers_app.models import Offer, OfferDetails
 from profil_app.models import CustomerProfile, BusinessProfile
 from upload_app.models import FileUpload
 from django.db.models import Min
+from django.urls import reverse
 
 def get_image_url(offer):
     """
@@ -12,7 +13,7 @@ def get_image_url(offer):
         return offer.image.file.url
     return ""
 
-class OfferDetailsSerializer(serializers.ModelSerializer):
+class OfferDetailsListSerializer(serializers.ModelSerializer):
     """
     Serializer for retrieving offer details. The 'url' field provides a link to the detail view of the offer detail instance.
     """
@@ -26,7 +27,20 @@ class OfferDetailsSerializer(serializers.ModelSerializer):
     
     def get_url(self, obj):
         """Return the URL for the offer detail instance."""
-        return f"/offersdetails/{obj.id}/"
+        return f"/offerdetails/{obj.id}/"
+    
+class OfferDetailsSerializer(serializers.ModelSerializer):
+    """Serializer for retrieving offer details. The 'url' field provides a link to the detail view of the offer detail instance."""
+    url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = OfferDetails
+        fields = ['id', 'url']
+        read_only_fields = ['id', 'url']
+    
+    def get_url(self, obj):
+        request = self.context.get("request")
+        return request.build_absolute_uri(f"/api/offerdetails/{obj.id}/")
 
 class OfferDetailsCreateSerializer(serializers.ModelSerializer):
     """
@@ -98,7 +112,7 @@ class OfferListSerializer(serializers.ModelSerializer):
     """
     Serializer for listing offers with their details and associated user information.
     """
-    details = OfferDetailsSerializer(source='offer_details', many=True, read_only=True)
+    details = OfferDetailsListSerializer(source='offer_details', many=True, read_only=True)
     user_details = UserDetailsSerializer(source='user', read_only=True)
     image = serializers.SerializerMethodField()
 
@@ -204,7 +218,7 @@ class SingleOfferSerializer(serializers.ModelSerializer):
             if obj.offer_details.exists():
                     return obj.offer_details.aggregate(Min('delivery_time_in_days'))['delivery_time_in_days__min'] or 0
             return 0
-                
+                     
 class SingleUpdateOfferSerializer(serializers.ModelSerializer):
 
     """Serializer for updating a single offer."""
@@ -315,10 +329,12 @@ class SingleDetailOfferSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = OfferDetails
-        fields = ['id', 
-                  'title', 
-                  'revisions', 
-                  'delivery_time_in_days', 
-                  'price', 
-                  'features', 
-                  'offer_type']
+        fields = [
+            'id', 
+            'title', 
+            'revisions', 
+            'delivery_time_in_days', 
+            'price', 
+            'features', 
+            'offer_type'
+            ]

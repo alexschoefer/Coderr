@@ -53,14 +53,6 @@ class SingleReviewSerializer(serializers.ModelSerializer):
             'updated_at'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
-
-    def validate_description(self, value):
-        """ 
-        Validates the description field to ensure it is at least 50 characters long if it is provided in the initial data.
-        """
-        if value and len(value) > 50:
-            raise serializers.ValidationError("For Description only 50 characters are allowed.")
-        return value
     
     def validate_rating(self, value):
         """ 
