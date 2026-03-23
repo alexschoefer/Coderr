@@ -65,9 +65,9 @@ class SingleOrderView(generics.RetrieveUpdateDestroyAPIView):
         
     def get_permissions(self):
         if self.request.method == 'PATCH':
-            permission_classes = [IsAuthenticated, IsUserBusiness]
+            permission_classes = [IsUserBusiness]
         elif self.request.method == 'DELETE':
-            permission_classes = [IsAuthenticated, IsUserAdmin]
+            permission_classes = [IsUserAdmin]
         else:
             permission_classes = [IsAuthenticated]
         return [permission() for permission in permission_classes]
