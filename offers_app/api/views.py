@@ -121,6 +121,14 @@ class SingleOfferView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Offer.objects.all()
     permission_classes = [SingleOfferPermission]
 
+    def get_permissions(self):
+        """Return different permissions based on the request method. Only the owner of the offer can update or delete it, while all authenticated users can view the offer details."""
+        if self.request.method == "GET":
+            return [IsAuthenticated()]
+        if self.request.method in ['PATCH', 'DELETE']:
+            return [SingleOfferPermission()]
+        return [IsAuthenticated()]
+
     def get_queryset(self):
         """Override the default queryset to prefetch related offer details for the specific offer being accessed."""
         pk = self.kwargs.get("pk")
