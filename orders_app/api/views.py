@@ -3,7 +3,7 @@ from .serializers import OrderListSerializer, OrderCreateSerializer
 from offers_app.models import OfferDetails
 from orders_app.models import Order
 from rest_framework.permissions import IsAuthenticated
-from .permissions import IsUserCustomer, IsUserAdmin, IsUserBusiness
+from .permissions import IsUserCustomer, IsUserAdmin, IsBusinessOwner
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
@@ -64,13 +64,12 @@ class SingleOrderView(generics.RetrieveUpdateDestroyAPIView):
             return OrderListSerializer
         
     def get_permissions(self):
+        """Returns the appropriate permission classes based on the HTTP method of the request."""
         if self.request.method == 'PATCH':
-            permission_classes = [IsUserBusiness]
+            return [IsAuthenticated(), IsBusinessOwner()]
         elif self.request.method == 'DELETE':
-            permission_classes = [IsUserAdmin]
-        else:
-            permission_classes = [IsAuthenticated]
-        return [permission() for permission in permission_classes]
+            return [IsAuthenticated(), IsUserAdmin()]
+        return [IsAuthenticated()]
     
 class InProgressOrderListView(APIView):
     """

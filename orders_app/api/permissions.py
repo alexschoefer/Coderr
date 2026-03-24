@@ -20,10 +20,14 @@ class IsUserAdmin(permissions.BasePermission):
             and (request.user.is_staff or request.user.is_superuser)
         )
     
-class IsUserBusiness(permissions.BasePermission):
-    """
-    Custom permission to only allow business users to access certain views.
-    """
 
-    def has_permission(self, request, view):
-        return request.user and request.user.is_authenticated and request.user.type == 'business'
+class IsBusinessOwner(permissions.BasePermission):
+    """
+    Custom permission to only allow business owners to access certain views.
+    """
+    def has_object_permission(self, request, view, obj):
+        return (
+            request.user
+            and request.user.is_authenticated
+            and request.user.type == 'business'
+        )

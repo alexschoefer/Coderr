@@ -126,7 +126,7 @@ class SingleOfferView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method == "GET":
             return [IsAuthenticated()]
         if self.request.method in ['PATCH', 'DELETE']:
-            return [IsOfferOwner()]
+            return [IsAuthenticated(), IsOfferOwner()]
         return [IsAuthenticated()]
 
     def get_queryset(self):
