@@ -1,385 +1,213 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
+# Coderr – Developer Platform Backend
 
-<body>
+**Coderr** is a backend system for a developer platform that connects
+clients and developers. The backend is built using *Django* and
+*Django REST Framework*.
 
-<h1>Coderr – Developer Platform Backend</h1>
-
-<p>
-<strong>Coderr</strong> is a backend system for a developer platform that connects
-clients and developers. The backend is built using
-<em>Django</em> and <em>Django REST Framework</em>.
-</p>
-
-<p>
 The project provides the server-side logic for managing users, developer
 profiles, offers, and orders. It ensures that all data handling,
 authentication, and permissions work reliably together with a frontend
 application.
-</p>
 
-<p>
 Coderr focuses on providing a structured API that allows clients to browse
 developer services while enabling developers to manage their profiles and
 offers.
-</p>
 
-<hr>
+The project provides the backend API for an existing frontend application.
 
-<h2>🚀 Features</h2>
-<ul>
-<li>User registration and authentication</li>
-<li>Developer profile management</li>
-<li>Service and offer creation</li>
-<li>Order management between clients and developers</li>
-<li>Permission-based access control</li>
-<li>RESTful API endpoints for frontend integration</li>
-</ul>
+---
 
-<hr>
+## 🚀 Features
 
-<h2>🛠 Tech Stack</h2>
-<ul>
-<li>Python 3</li>
-<li>Django</li>
-<li>Django REST Framework</li>
-<li>Token Authentication</li>
-<li>SQLite (development)</li>
-</ul>
+- User registration and authentication
+- Developer profile management
+- Service and offer creation
+- Order management between clients and developers
+- Permission-based access control
+- RESTful API endpoints for frontend integration
 
-<hr>
+---
 
-<h2>📦 Installation</h2>
+## 🛠 Tech Stack
 
-<h3>1. Clone the repository</h3>
+- Python 3
+- Django
+- Django REST Framework
+- Token Authentication
+- SQLite (development)
 
-<pre>
+---
+
+## 📦 Installation
+
+### 1. Clone the repository
+
+```bash
 git clone https://github.com/alexschoefer/Coderr.git
 cd Coderr
-</pre>
+```
 
-<h3>2. Create and activate a virtual environment</h3>
+### 2. Create and activate a virtual environment
 
-<pre>
+```bash
 python -m venv venv
-source venv/bin/activate   # macOS / Linux
-venv\Scripts\activate      # Windows
-</pre>
 
-<h3>3. Install dependencies</h3>
+# macOS / Linux
+source venv/bin/activate
 
-<pre>
+# Windows
+venv\Scripts\activate
+```
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
-</pre>
+```
 
-<h3>4. Apply migrations</h3>
+### 4. Apply migrations
 
-<pre>
+```bash
 python manage.py migrate
-</pre>
+```
 
-<h3>5. Run the development server</h3>
+### 5. Run the development server
 
-<pre>
+```bash
 python manage.py runserver
-</pre>
+```
 
-<hr>
+---
 
-<h2>🔐 Authentication</h2>
+## 🔐 Authentication
 
-<p>
-Coderr uses <strong>token-based authentication</strong> to secure API access.
+Coderr uses **token-based authentication** to secure API access.
 After successful registration or login, the API returns an authentication token.
-</p>
 
-<p>Include the token in the request headers:</p>
+Include the token in the request headers:
 
-<pre>
+```http
 Authorization: Token your_token_here
-</pre>
+```
 
-<hr>
+---
 
-<h2>🛠 Superuser & Admin Access</h2>
+## 🛠 Superuser & Admin Access
 
-<p>
 For administrative tasks, Coderr provides access to the Django admin interface.
 A superuser account is required to manage users, developer profiles, offers,
 and other database objects.
-</p>
 
-<h3>1. Create a Superuser</h3>
+### 1. Create a Superuser
 
-<pre>
+```bash
 python manage.py createsuperuser
-</pre>
+```
 
-<p>
 Follow the prompts to create an admin username, email, and password.
-</p>
 
-<h3>2. Start the Development Server</h3>
+### 2. Start the Development Server
 
-<pre>
+```bash
 python manage.py runserver
-</pre>
+```
 
-<h3>3. Access the Admin Panel</h3>
+### 3. Access the Admin Panel
 
-<p>
 Open the following URL in your browser:
-</p>
 
-<pre>
+```txt
 http://127.0.0.1:8000/admin/
-</pre>
+```
 
-<p>
 Log in using the superuser credentials you created earlier.
-</p>
 
-<h3>4. Admin Capabilities</h3>
+### 4. Admin Capabilities
 
-<ul>
-<li>Manage registered users</li>
-<li>Edit developer profiles</li>
-<li>View and modify offers</li>
-<li>Inspect database entries</li>
-<li>Debug application data</li>
-</ul>
+- Manage registered users
+- Edit developer profiles
+- View and modify offers
+- Inspect database entries
+- Debug application data
 
-<hr>
+---
 
-<h2>📚 API Overview</h2>
+## 📚 API Overview
 
-<h3>Authentication</h3>
+### Authentication
 
-<table>
-<tr>
-<th>Method</th>
-<th>Endpoint</th>
-<th>Description</th>
-</tr>
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/register/` | Register a new user |
+| POST | `/api/login/` | Login and receive authentication token |
 
-<tr>
-<td>POST</td>
-<td>/api/register/</td>
-<td>Register a new user</td>
-</tr>
+---
 
-<tr>
-<td>POST</td>
-<td>/api/login/</td>
-<td>Login and receive authentication token</td>
-</tr>
+### Business and Customer Profiles
 
-</table>
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/profiles/business` | List available business profiles |
+| GET | `/api/profiles/customer` | List available customer profiles |
+| GET | `/api/profiles/<id>/` | Retrieve business profile or customer profile |
+| PATCH | `/api/profiles/<id>/` | Update business profile or customer profile |
 
-<h3>Business and Customer Profiles</h3>
+---
 
-<table>
+### Offers
 
-<tr>
-<th>Method</th>
-<th>Endpoint</th>
-<th>Description</th>
-</tr>
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/offers/` | Create a new service offer |
+| GET | `/api/offers/` | List available offers |
+| GET | `/api/offers/<id>/` | Retrieve offer details |
+| PATCH | `/api/offers/<id>/` | Update an offer |
+| DELETE | `/api/offers/<id>/` | Delete an offer |
 
-<tr>
-<td>GET</td>
-<td>/api/profiles/business</td>
-<td>List available business profiles</td>
-</tr>
+---
 
-<tr>
-<td>GET</td>
-<td>/api/profiles/customer</td>
-<td>List available customer profiles</td>
-</tr>
+### Orders
 
-<tr>
-<td>GET</td>
-<td>/api/profiles/&lt;id&gt;/</td>
-<td>Retrieve business profile or customer profile</td>
-</tr>
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/orders/` | Create a new order |
+| GET | `/api/orders/` | List available orders |
+| GET | `/api/order-count/<id>/` | Returns the number of active orders for a specific business user |
+| GET | `/api/completed-order-count/<id>/` | Returns the number of completed orders for a specific business user |
+| PATCH | `/api/orders/<id>/` | Update an order |
+| DELETE | `/api/offers/<id>/` | Delete an offer |
 
-<tr>
-<td>PATCH</td>
-<td>/api/profiles/&lt;id&gt;/</td>
-<td>Update business profile or customer profile</td>
-</tr>
-</table>
+---
 
-<h3>Offers</h3>
+### Review
 
-<table>
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/reviews/` | Create a new review |
+| GET | `/api/reviews/` | List available reviews |
+| PATCH | `/api/reviews/<id>/` | Update a review |
+| DELETE | `/api/review/<id>/` | Delete a review |
 
-<tr>
-<th>Method</th>
-<th>Endpoint</th>
-<th>Description</th>
-</tr>
+---
 
-<tr>
-<td>POST</td>
-<td>/api/offers/</td>
-<td>Create a new service offer</td>
-</tr>
+### Base-Info
 
-<tr>
-<td>GET</td>
-<td>/api/offers/</td>
-<td>List available offers</td>
-</tr>
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | `/api/base-info/` | Provides general background information about the platform |
 
-<tr>
-<td>GET</td>
-<td>/api/offers/&lt;id&gt;/</td>
-<td>Retrieve offer details</td>
-</tr>
+---
 
-<tr>
-<td>PATCH</td>
-<td>/api/offers/&lt;id&gt;/</td>
-<td>Update an offer</td>
-</tr>
+## 🔐 Permission Concept
 
-<tr>
-<td>DELETE</td>
-<td>/api/offers/&lt;id&gt;/</td>
-<td>Delete an offer</td>
-</tr>
+- Only authenticated users can access protected endpoints
+- Business users can only manage their own profiles and offers
+- Customers can browse developers and available offers
+- Only offer owners can update or delete their offers
+- Orders can only be accessed by the involved users
 
-</table>
+---
 
-<h3>Orders</h3>
+## 📄 License
 
-<table>
-
-<tr>
-<th>Method</th>
-<th>Endpoint</th>
-<th>Description</th>
-</tr>
-
-<tr>
-<td>POST</td>
-<td>/api/orders/</td>
-<td>Create a new order</td>
-</tr>
-
-<tr>
-<td>GET</td>
-<td>/api/orders/</td>
-<td>List available orders</td>
-</tr>
-
-<tr>
-<td>GET</td>
-<td>/api/order-count/&lt;id&gt;/</td>
-<td>Returns the number of active orders for a specific business user</td>
-</tr>
-
-<tr>
-<td>GET</td>
-<td>/api/completed-order-count/&lt;id&gt;/</td>
-<td>Returns the number of completed orders for a specific business user</td>
-</tr>
-
-<tr>
-<td>PATCH</td>
-<td>/api/orders/&lt;id&gt;/</td>
-<td>Update an order</td>
-</tr>
-
-<tr>
-<td>DELETE</td>
-<td>/api/offers/&lt;id&gt;/</td>
-<td>Delete an offer</td>
-</tr>
-
-</table>
-
-<h3>Review</h3>
-
-<table>
-
-<tr>
-<th>Method</th>
-<th>Endpoint</th>
-<th>Description</th>
-</tr>
-
-<tr>
-<td>POST</td>
-<td>/api/reviews/</td>
-<td>Create a new review</td>
-</tr>
-
-<tr>
-<td>GET</td>
-<td>/api/reviews/</td>
-<td>List available reviews</td>
-</tr>
-
-<tr>
-<td>PATCH</td>
-<td>/api/reviews/&lt;id&gt;/</td>
-<td>Update a review</td>
-</tr>
-
-<tr>
-<td>DELETE</td>
-<td>/api/review/&lt;id&gt;/</td>
-<td>Delete a review</td>
-</tr>
-
-</table>
-
-<h3>Base-Info</h3>
-
-<table>
-
-<tr>
-<th>Method</th>
-<th>Endpoint</th>
-<th>Description</th>
-</tr>
-
-<tr>
-<td>GET</td>
-<td>/api/base-info/</td>
-<td>Provides general background information about the platform</td>
-</tr>
-
-</table>
-
-
-<hr>
-
-<h2>🔐 Permission Concept</h2>
-
-<ul>
-<li>Only authenticated users can access protected endpoints</li>
-<li>Business user can only manage their own profiles and offers</li>
-<li>Customer can browse developers and available offers</li>
-<li>Only offer owners can update or delete their offers</li>
-<li>Orders can only be accessed by the involved users</li>
-</ul>
-
-<hr>
-
-<h2>📄 License</h2>
-
-<p>
-This project was created for educational purposes and as a demonstration
-of backend development using Django REST Framework.
-</p>
-
-</body>
-</html>
+This project is licensed under the MIT License — © 2026 Alex Schöfer.
