@@ -22,9 +22,9 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('auth_app.api.urls')),
-    path('', include('profil_app.api.urls')),
-    path('', include('offers_app.api.urls')),
-    path('', include('orders_app.api.urls')),
-    path('', include('reviews_app.api.urls')),
-    path('', include('base_info_app.api.urls')),
+    path('api/', include('profil_app.api.urls')),
+    path('api/', include('offers_app.api.urls')),
+    path('api/', include('orders_app.api.urls')),
+    path('api/', include('reviews_app.api.urls')),
+    path('api/', include('base_info_app.api.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)   
