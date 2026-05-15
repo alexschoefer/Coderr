@@ -3,5 +3,5 @@ from .views import BaseInfoAPIView
 
 
 urlpatterns = [
-    path('api/base-info/', BaseInfoAPIView.as_view(), name='base-info'),
+    path('base-info/', BaseInfoAPIView.as_view(), name='base-info'),
 ]
