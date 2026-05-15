@@ -21,10 +21,10 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('auth_app.api.urls')),
-    path('', include('profil_app.api.urls')),
-    path('', include('offers_app.api.urls')),
-    path('', include('orders_app.api.urls')),
-    path('', include('reviews_app.api.urls')),
-    path('', include('base_info_app.api.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)   
+    path('api/auth/', include('auth_app.api.urls')),
+    path('api/profile/', include('profil_app.api.urls')),
+    path('api/offers/', include('offers_app.api.urls')),
+    path('api/orders/', include('orders_app.api.urls')),
+    path('api/reviews/', include('reviews_app.api.urls')),
+    path('api/base-info/', include('base_info_app.api.urls')),
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)   
