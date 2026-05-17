@@ -50,6 +50,7 @@ CORS_ALLOW_CREDENTIALS = True
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+print("ENV FILE LOADED FROM:", BASE_DIR / ".env")
 
 # Application definition
 
