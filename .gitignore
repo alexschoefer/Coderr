@@ -67,3 +67,4 @@ dist/
 .env
 .env.*
 !.env.example
+core/env
