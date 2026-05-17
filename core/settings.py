@@ -34,6 +34,8 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+FRONTEND_URL = os.environ.get("FRONTEND_URL")
+
 DOMAIN = os.environ.get("DOMAIN", default="http://127.0.0.1:8000")
 
 CSRF_TRUSTED_ORIGINS = os.environ.get(
@@ -41,11 +43,8 @@ CSRF_TRUSTED_ORIGINS = os.environ.get(
     default="http://localhost:5500,http://127.0.0.1:5500"
 ).split(",")
 
+CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS","").split(",")
 
-CORS_ALLOWED_ORIGINS = os.environ.get(
-    "CORS_ALLOWED_ORIGINS",
-    default="http://127.0.0.1:5500,http://localhost:5500,http://127.0.0.1:5501,http://localhost:5501"
-).split(",")
 CORS_ALLOW_CREDENTIALS = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -150,7 +149,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
