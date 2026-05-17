@@ -43,7 +43,8 @@ CSRF_TRUSTED_ORIGINS = os.environ.get(
     default="http://localhost:5500,http://127.0.0.1:5500"
 ).split(",")
 
-CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS","").split(",")
+#CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS","").split(",")
+CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOW_CREDENTIALS = True
 
