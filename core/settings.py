@@ -44,7 +44,10 @@ CSRF_TRUSTED_ORIGINS = os.environ.get(
 ).split(",")
 
 #CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS","").split(",")
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "https://coderr.alexander-schoefer.de",
+    "https://api.coderr.alexander-schoefer.de",
+]
 
 CORS_ALLOW_CREDENTIALS = True
 
